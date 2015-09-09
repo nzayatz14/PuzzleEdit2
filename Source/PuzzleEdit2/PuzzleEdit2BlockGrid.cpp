@@ -97,7 +97,7 @@ void APuzzleEdit2BlockGrid::BeginPlay()
         }
         
         if (i == 24) {
-            blocks[i]->changeColor();
+            //blocks[i]->changeColor();
         }
         
         blocks[i]->numAdjacentBlocks = numPieces;
