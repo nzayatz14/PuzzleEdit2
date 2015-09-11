@@ -58,27 +58,31 @@ void APuzzleEdit2BlockGrid::BeginPlay()
 	}
     
     
-    //TODO: Add blocks to adjacent lists
+    //Add blocks to adjacent lists
     for (int i = 0; i<NumBlocks; i++) {
         APuzzleEdit2Block** adjacentBlocks = new APuzzleEdit2Block*[4];
         int numPieces = 0;
         
+        //if it has a block above it
         if ((i+Size) < NumBlocks) {
             adjacentBlocks[numPieces] = blocks[i+Size];
             UE_LOG(LogTemp, Warning, TEXT("Block %d: %p = %p\n"), i, adjacentBlocks[numPieces] ,blocks[i+Size]);
             numPieces++;
         }
         
+        //if it has a block below it
         if ((i-Size) >= 0) {
             adjacentBlocks[numPieces] = blocks[i-Size];
             numPieces++;
         }
         
+        //if it has a block to the right of it
         if ((i+1) % Size != 0 && (i+1) < NumBlocks) {
             adjacentBlocks[numPieces] = blocks[i+1];
             numPieces++;
         }
         
+        //if it has a block to the left of it
         if (i % Size != 0 && (i-1) >= 0) {
             adjacentBlocks[numPieces] = blocks[i-1];
             numPieces++;
@@ -86,20 +90,12 @@ void APuzzleEdit2BlockGrid::BeginPlay()
         
         //UE_LOG(LogTemp, Warning, TEXT("Block %d: %d\n"), i,numPieces);
         
+        //copy blocks to new, smaller sized array to save space
         APuzzleEdit2Block **adjacentArray = new APuzzleEdit2Block*[numPieces];
         
         for (int j = 0; j<numPieces; j++){
             //UE_LOG(LogTemp, Warning, TEXT("Block Pointer %d: %p\n"), j,adjacentBlocks[j]);
             adjacentArray[j] = adjacentBlocks[j];
-            
-            if (i == 24) {
-                //adjacentArray[j]->changeColor();
-                //UE_LOG(LogTemp, Warning, TEXT("Block %d: %p\n"), j,adjacentArray[j]);
-            }
-        }
-        
-        if (i == 24) {
-            //blocks[i]->changeColor();
         }
         
         blocks[i]->numAdjacentBlocks = numPieces;
