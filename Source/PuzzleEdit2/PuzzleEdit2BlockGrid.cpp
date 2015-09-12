@@ -7,6 +7,8 @@
 
 #define LOCTEXT_NAMESPACE "PuzzleBlockGrid"
 
+APuzzleEdit2Block** allBlocks;
+
 APuzzleEdit2BlockGrid::APuzzleEdit2BlockGrid()
 {
 	// Create dummy root scene component
@@ -35,6 +37,7 @@ void APuzzleEdit2BlockGrid::BeginPlay()
 	// Number of blocks
 	const int32 NumBlocks = Size * Size;
     APuzzleEdit2Block** blocks = new APuzzleEdit2Block*[NumBlocks];
+    allBlocks = new APuzzleEdit2Block*[NumBlocks];
 
 	// Loop to spawn each block
 	for(int32 BlockIndex=0; BlockIndex<NumBlocks; BlockIndex++)
@@ -49,6 +52,7 @@ void APuzzleEdit2BlockGrid::BeginPlay()
 		APuzzleEdit2Block* NewBlock = GetWorld()->SpawnActor<APuzzleEdit2Block>(BlockLocation, FRotator(0,0,0));
 
         blocks[BlockIndex] = NewBlock;
+        allBlocks[BlockIndex] = NewBlock;
         //UE_LOG(LogTemp, Warning, TEXT("Block %d: %p\n"), BlockIndex, blocks[BlockIndex]);
 		// Tell the block about its owner
 		if(NewBlock != NULL)
@@ -112,6 +116,24 @@ void APuzzleEdit2BlockGrid::AddScore()
 
 	// Update text
 	ScoreText->SetText(FText::Format(LOCTEXT("ScoreFmt", "Score: {0}"), FText::AsNumber(Score)));
+    
+    checkWin();
 }
+
+
+void APuzzleEdit2BlockGrid::checkWin(){
+    bool win = true;
+    
+    for (int i = 0; i<25;i++){
+        if (allBlocks[i]->bIsActive == false) {
+            win = false;
+        }
+    }
+    
+    if (win) {
+        ScoreText->SetText(TEXT("YOU WIN!!!"));
+    }
+}
+
 
 #undef LOCTEXT_NAMESPACE

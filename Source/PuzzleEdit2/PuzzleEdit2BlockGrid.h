@@ -37,6 +37,7 @@ public:
 
 	/** Handle the block being clicked */
 	void AddScore();
+    void checkWin();
 
 public:
 	/** Returns DummyRoot subobject **/
