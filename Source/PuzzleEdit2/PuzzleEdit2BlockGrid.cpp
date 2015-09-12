@@ -4,6 +4,7 @@
 #include "PuzzleEdit2BlockGrid.h"
 #include "PuzzleEdit2Block.h"
 #include "Components/TextRenderComponent.h"
+#include <ctime>
 
 #define LOCTEXT_NAMESPACE "PuzzleBlockGrid"
 
@@ -27,6 +28,7 @@ APuzzleEdit2BlockGrid::APuzzleEdit2BlockGrid()
 	// Set defaults
 	Size = 5;
 	BlockSpacing = 150.f;
+    time = 1;
 }
 
 
@@ -106,9 +108,20 @@ void APuzzleEdit2BlockGrid::BeginPlay()
         blocks[i]->adjacentBlocks = new APuzzleEdit2Block*[numPieces];
         blocks[i]->adjacentBlocks = adjacentArray;
     }
+    
+    
+    //set up timer
+    GetWorld()->GetTimerManager().SetTimer(handleClock, this, &APuzzleEdit2BlockGrid::showTime, 1.0f, true);
+    //GetWorldTimerManager().SetTimer
 }
 
 
+/**
+Function called to add score to the user
+ 
+ - parameter void
+ - returns: void
+*/
 void APuzzleEdit2BlockGrid::AddScore()
 {
 	// Increment score
@@ -121,6 +134,12 @@ void APuzzleEdit2BlockGrid::AddScore()
 }
 
 
+/**
+ Function called to check if the user has won
+ 
+ - parameter void
+ - returns: void
+ */
 void APuzzleEdit2BlockGrid::checkWin(){
     bool win = true;
     
@@ -133,6 +152,21 @@ void APuzzleEdit2BlockGrid::checkWin(){
     if (win) {
         ScoreText->SetText(TEXT("YOU WIN!!!"));
     }
+}
+
+
+/**
+ Function called to show the time of the game to the user
+ 
+ - parameter void
+ - returns: void
+ */
+void APuzzleEdit2BlockGrid::showTime() {
+    
+    //TODO: Create label for time
+    ScoreText->SetText(FText::Format(LOCTEXT("ScoreFmt", "Score: {0}"), FText::AsNumber(time)));
+    
+    time++;
 }
 
 

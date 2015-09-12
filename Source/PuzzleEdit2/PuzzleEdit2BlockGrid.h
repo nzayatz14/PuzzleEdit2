@@ -38,6 +38,12 @@ public:
 	/** Handle the block being clicked */
 	void AddScore();
     void checkWin();
+    
+    FTimerHandle handleClock;
+    void showTime();
+    int32 time;
+    
+    
 
 public:
 	/** Returns DummyRoot subobject **/
