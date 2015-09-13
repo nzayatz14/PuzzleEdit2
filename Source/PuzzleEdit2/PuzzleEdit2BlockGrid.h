@@ -16,6 +16,7 @@ class APuzzleEdit2BlockGrid : public AActor
 	/** Text component for the score */
 	UPROPERTY(Category = Grid, VisibleDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UTextRenderComponent* ScoreText;
+    class UTextRenderComponent* Time;
 
 public:
 	APuzzleEdit2BlockGrid();
@@ -38,6 +39,9 @@ public:
 	/** Handle the block being clicked */
 	void AddScore();
     void checkWin();
+    void checkLoss();
+    bool lost;
+    bool won;
     
     FTimerHandle handleClock;
     void showTime();
@@ -50,6 +54,8 @@ public:
 	FORCEINLINE class USceneComponent* GetDummyRoot() const { return DummyRoot; }
 	/** Returns ScoreText subobject **/
 	FORCEINLINE class UTextRenderComponent* GetScoreText() const { return ScoreText; }
+    /** Returns Time subobject **/
+    FORCEINLINE class UTextRenderComponent* GetTime() const { return Time; }
 };
 
 

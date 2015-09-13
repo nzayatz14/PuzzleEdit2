@@ -44,6 +44,12 @@ void APuzzleEdit2Block::BlockClicked(UPrimitiveComponent* ClickedComp)
 {
     changeColor();
     
+    // Tell the Grid to change the score
+    if(OwningGrid != NULL)
+    {
+        OwningGrid->AddScore();
+    }
+    
     for (int i = 0; i<numAdjacentBlocks; i++) {
         adjacentBlocks[i]->changeColor();
         UE_LOG(LogTemp, Warning, TEXT("Block Pointer %d: %p\n"), i,adjacentBlocks[i]);
@@ -66,11 +72,6 @@ void APuzzleEdit2Block::changeColor(){
         // Change material
         BlockMesh->SetMaterial(0, OrangeMaterial);
         
-        // Tell the Grid
-        if(OwningGrid != NULL)
-        {
-            OwningGrid->AddScore();
-        }
     }else{
         bIsActive = false;
         

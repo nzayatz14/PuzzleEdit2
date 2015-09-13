@@ -16,19 +16,31 @@ APuzzleEdit2BlockGrid::APuzzleEdit2BlockGrid()
 	DummyRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Dummy0"));
 	RootComponent = DummyRoot;
 
-	// Create static mesh component
+	// Create static mesh component for score text
 	ScoreText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("ScoreText0"));
     ScoreText->XScale = 3.f;
     ScoreText->YScale = 3.f;
 	ScoreText->SetRelativeLocation(FVector(200.f,0.f,0.f));
 	ScoreText->SetRelativeRotation(FRotator(90.f,0.f,0.f));
-	ScoreText->SetText(FText::Format(LOCTEXT("ScoreFmt", "Score: {0}"), FText::AsNumber(0)));
+	ScoreText->SetText(FText::Format(LOCTEXT("ScoreFmt", "Score: {0}"), FText::AsNumber(100)));
 	ScoreText->AttachTo(DummyRoot);
+    
+    // Create static mesh component for time
+    Time = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Time0"));
+    Time->XScale = 3.f;
+    Time->YScale = 3.f;
+    Time->SetRelativeLocation(FVector(260.f,0.f,0.f));
+    Time->SetRelativeRotation(FRotator(90.f,0.f,0.f));
+    Time->SetText(FText::Format(LOCTEXT("TimeFmt", "Time Left: {0}:0{1}"), FText::AsNumber(5), FText::AsNumber(0)));
+    Time->AttachTo(DummyRoot);
 
 	// Set defaults
+    Score = 100;
 	Size = 5;
 	BlockSpacing = 150.f;
-    time = 1;
+    time = 300;
+    lost = false;
+    won = false;
 }
 
 
@@ -94,8 +106,6 @@ void APuzzleEdit2BlockGrid::BeginPlay()
             numPieces++;
         }
         
-        //UE_LOG(LogTemp, Warning, TEXT("Block %d: %d\n"), i,numPieces);
-        
         //copy blocks to new, smaller sized array to save space
         APuzzleEdit2Block **adjacentArray = new APuzzleEdit2Block*[numPieces];
         
@@ -103,6 +113,9 @@ void APuzzleEdit2BlockGrid::BeginPlay()
             //UE_LOG(LogTemp, Warning, TEXT("Block Pointer %d: %p\n"), j,adjacentBlocks[j]);
             adjacentArray[j] = adjacentBlocks[j];
         }
+        
+        //free statement causes app to crash
+        //free(adjacentBlocks);
         
         blocks[i]->numAdjacentBlocks = numPieces;
         blocks[i]->adjacentBlocks = new APuzzleEdit2Block*[numPieces];
@@ -125,12 +138,13 @@ Function called to add score to the user
 void APuzzleEdit2BlockGrid::AddScore()
 {
 	// Increment score
-	Score++;
+	Score--;
 
 	// Update text
 	ScoreText->SetText(FText::Format(LOCTEXT("ScoreFmt", "Score: {0}"), FText::AsNumber(Score)));
     
     checkWin();
+    checkLoss();
 }
 
 
@@ -143,14 +157,36 @@ void APuzzleEdit2BlockGrid::AddScore()
 void APuzzleEdit2BlockGrid::checkWin(){
     bool win = true;
     
+    //check if all blocks are on
     for (int i = 0; i<25;i++){
         if (allBlocks[i]->bIsActive == false) {
             win = false;
         }
     }
     
-    if (win) {
+    //if the user has won, tell them
+    if (win && !lost) {
+        won = true;
+        GetWorld()->GetTimerManager().ClearTimer(handleClock);
         ScoreText->SetText(TEXT("YOU WIN!!!"));
+    }
+}
+
+
+/**
+ Function called to check if the user has lost
+ 
+ - parameter void
+ - returns: void
+ */
+void APuzzleEdit2BlockGrid::checkLoss(){
+    
+    //player loses if time runs out or if the score runs out
+    if ((time == 0 || Score <= 0) && !won){
+        GetWorld()->GetTimerManager().ClearTimer(handleClock);
+        Score = 0;
+        ScoreText->SetText(TEXT("You Lose :("));
+        lost = true;
     }
 }
 
@@ -163,10 +199,22 @@ void APuzzleEdit2BlockGrid::checkWin(){
  */
 void APuzzleEdit2BlockGrid::showTime() {
     
-    //TODO: Create label for time
-    ScoreText->SetText(FText::Format(LOCTEXT("ScoreFmt", "Score: {0}"), FText::AsNumber(time)));
+    //increment time
+    time--;
     
-    time++;
+    //calculate minutes and seconds
+    int32 minutes = time / 60;
+    int32 seconds = time % 60;
+    
+    //Set time label
+    if (seconds < 10){
+        Time->SetText(FText::Format(LOCTEXT("TimeFmt", "Time Left: {0}:0{1}"), FText::AsNumber(minutes), FText::AsNumber(seconds)));
+    }else{
+        Time->SetText(FText::Format(LOCTEXT("TimeFmt", "Time Left: {0}:{1}"), FText::AsNumber(minutes), FText::AsNumber(seconds)));
+    }
+    
+    //check if the user has lost
+    checkLoss();
 }
 
 
